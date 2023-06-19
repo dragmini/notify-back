@@ -1,13 +1,25 @@
 import { WebSocketGateway, WebSocketServer, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage } from '@nestjs/websockets';
 import { Server, WebSocket } from 'ws';
+import {UnauthorizedException} from "@nestjs/common";
+
 // import { Server } from 'http';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { createServer } from 'http';
+import { UserService } from 'src/user/user.service';
+import { AuthService } from 'src/auth/auth.service';
+import { Socket } from 'socket.io';
+import { JwtService } from '@nestjs/jwt';
+
 
 @WebSocketGateway(8080)
 export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server:Server;
+
+  constructor(
+    private userService: UserService,
+    private authService: AuthService,
+    private jwtService: JwtService,){}
 
 
   @SubscribeMessage('message') // Декоратор для обработки конкретного типа сообщения
@@ -23,12 +35,30 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log('WebSocket сервер инициализирован');
   }
 
-  handleConnection(client: any) {
-    console.log('Новое WebSocket соединение');
+ async  handleConnection(socket: Socket) {
+    try {
+      const decodedToken = this.jwtService.decode(socket.handshake.query.token as string);
+      const user = await this.userService.byId(decodedToken['id']);
+  
+        if(!user){
+          console.log('disconnect user');
+          return this.disconnect(socket);
+        } else {
+          console.log('do smth', user);
+        }
+      } catch {
+        console.log('disconnect user')
+        return this.disconnect(socket);
+      }
   }
 
   handleDisconnect(client: any) {
     console.log('WebSocket соединение разорвано');
+  }
+
+  private disconnect(socket: Socket) {
+    socket.emit('Error', new UnauthorizedException());
+    socket.disconnect();
   }
 
   configure() {

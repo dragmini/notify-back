@@ -112,4 +112,8 @@ export class AuthService {
 
 		return user
 	}
+
+	async verifyJwt(jwt: string): Promise<any> {
+        return this.jwtService.verifyAsync(jwt);
+    }
 }
