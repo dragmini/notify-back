@@ -15,7 +15,9 @@ import { Message } from '@prisma/client';
 import { WebSocketService } from './websocket.service';
 
 
-@WebSocketGateway(8080)
+@WebSocketGateway(8080, {
+    cors: { origin: ['http://localhost:3000'] },
+  })
 export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server:Server;
