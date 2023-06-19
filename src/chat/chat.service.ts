@@ -44,6 +44,21 @@ export class ChatService {
         return await this.prismaServices.chat.findUnique({
             where: {
                 id
+            },
+            select: {
+                id:       true,
+                createdAt :true,
+                updatedAt :true,
+                users :true,
+                messages : {
+                    select: {
+                        id: true,
+                        createdAt: true,
+                        content: true,
+                        user: true,
+                    }
+                },
+                
             }
         })
     }

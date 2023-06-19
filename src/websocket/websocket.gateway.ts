@@ -9,6 +9,10 @@ import { UserService } from 'src/user/user.service';
 import { AuthService } from 'src/auth/auth.service';
 import { Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
+import IMesageSend from 'src/message/type/send-message.interface';
+import IMessageSend from 'src/message/type/send-message.interface';
+import { Message } from '@prisma/client';
+import { WebSocketService } from './websocket.service';
 
 
 @WebSocketGateway(8080)
@@ -16,19 +20,26 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server:Server;
 
+  connections: Map<string, Socket> = new Map();
+
   constructor(
     private userService: UserService,
     private authService: AuthService,
-    private jwtService: JwtService,){}
+    private jwtService: JwtService,
+    private webSocketService: WebSocketService){}
 
 
-  @SubscribeMessage('message') // Декоратор для обработки конкретного типа сообщения
-  handleIncomingMessage(client: WebSocket, payload: any) {
-    // Обработка входящего сообщения
-    console.log('Received message:', payload);
-    
-    // Отправка ответа обратно клиенту
-    client.send('Server received your message');
+  @SubscribeMessage('chat message')
+  async handleChatMessage(client: Socket, payload: IMessageSend) {
+    const decodedToken = this.jwtService.decode(client.handshake.query.token as string);
+    const createdMessage = await  this.webSocketService.handlerNewMessage(decodedToken['id'], payload)
+    const userIds = createdMessage.chat.users.map(user => user.id)
+
+    for (const [clientId, clientSocket] of this.connections) {
+      if(userIds.includes(+clientId) && clientId !== decodedToken['id']) {
+        clientSocket.emit('chat message', createdMessage)
+      }
+    }
   }
 
   afterInit() {
@@ -44,7 +55,7 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
           console.log('disconnect user');
           return this.disconnect(socket);
         } else {
-          console.log('do smth', user);
+          this.connections.set(decodedToken['id'], socket);
         }
       } catch {
         console.log('disconnect user')
