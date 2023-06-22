@@ -12,4 +12,9 @@ export class UserController {
   getProfile(@CurrentUser ('id') id: number) {
     return this.userService.byId(id)
   }
+
+  @Get('list')
+  getUserList() {
+    return this.userService.getAll() 
+  }
 }

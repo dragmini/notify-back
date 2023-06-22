@@ -21,4 +21,10 @@ export class UserService {
 
 		return user
 	}
+
+	async getAll() {
+		const list = await this.prismaService.user.findMany()
+		
+		return list
+	}
 }
