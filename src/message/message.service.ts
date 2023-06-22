@@ -27,6 +27,14 @@ export class MessageService {
               }
             },
             include: {
+                user: {
+                    select: {
+                        id: true,
+                        firstName: true,
+                        secondName: true,
+                        avatarPath: true
+                    }
+            },
               chat: {
                 select: {
                     id: true,
