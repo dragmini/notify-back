@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CurrentUser } from 'src/auth/decorators/user.decorator';
 import { Auth } from 'src/auth/decorators/auth.decorator';
@@ -15,6 +15,18 @@ export class UserController {
 
   @Get('list')
   getUserList() {
-    return this.userService.getAll() 
+    return this.userService.getAll()
+  }
+
+  @Get(':slug') 
+  getBySlug(@Param() slug: {slug: string}) {
+    console.log
+    return this.userService.getBySlugContains(slug)
+  }
+
+  @Auth()
+  @Post('change-slug') 
+  changeBySlug(@CurrentUser('id') id: number, @Body() dto: {slug: string}) {
+    return this.userService.changeSlug(id, dto)
   }
 }

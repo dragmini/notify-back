@@ -27,4 +27,23 @@ export class UserService {
 		
 		return list
 	}
+
+	async getBySlugContains(dto: { slug: string }) {
+
+		const users = await this.prismaService.user.findMany({
+			where: {
+				userSlug: {
+					contains: dto.slug,
+				}
+			},
+      	})
+		return users
+	}
+
+	async changeSlug(id: number, dto: {slug: string}) {
+		return this.prismaService.user.update({
+			where: { id: id },
+			data: { userSlug: dto.slug },
+		});
+	}
 }

@@ -64,7 +64,8 @@ export class AuthService {
 				birthDate: ('16.09.2002'),
 				avatarPath: faker.image.avatar(),
 				phone: faker.phone.number('+7 (###) ###-##-##'),
-				password: await hash(dto.password)
+				password: await hash(dto.password),
+				userSlug: await hash(dto.password)
 			}
 		})
 

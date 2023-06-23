@@ -12,30 +12,30 @@ datasource db {
 
 model User {
   id        Int      @id @default(autoincrement())
-  createdAt  DateTime @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   email    String @unique
   password String
 
-  firstName       String  @map("first_name")
-  secondName       String @map("second_name")
-  birthDate String @map("birth_date")
+  firstName  String @map("first_name")
+  secondName String @map("second_name")
+  birthDate  String @map("birth_date")
 
   // TODO: Add default avatar
-  avatarPath String  @default("/uploads/default-avatar.png") @map("avatar_path")
+  avatarPath String @default("/uploads/default-avatar.png") @map("avatar_path")
 
-  phone     String?   @default("")
+  phone    String? @default("")
+  userSlug String  @unique
 
-  chats Chat[]
+  chats    Chat[]
   messages Message[]
 }
 
 model Chat {
   id        Int      @id @default(autoincrement())
-  createdAt  DateTime @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-
 
   users User[]
 
@@ -44,13 +44,13 @@ model Chat {
 
 model Message {
   id        Int      @id @default(autoincrement())
-  createdAt  DateTime @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   content String
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int
+  user    User   @relation(fields: [userId], references: [id])
+  userId  Int
 
   // Связь многие-ко-одному с моделью Chat
-  chat      Chat     @relation(fields: [chatId], references: [id])
-  chatId    Int
+  chat   Chat @relation(fields: [chatId], references: [id])
+  chatId Int
 }
