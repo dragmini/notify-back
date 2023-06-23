@@ -38,9 +38,9 @@ export class MyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const userIds = createdMessage.chat.users.map(user => user.id)
 
     for (const [clientId, clientSocket] of this.connections) {
-      if(userIds.includes(+clientId) && clientId !== decodedToken['id']) {
+      // if(userIds.includes(+clientId) && clientId !== decodedToken['id']) {
         clientSocket.emit('chat message', createdMessage)
-      }
+      // }
     }
   }
 
